@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import CleintProvider from "@/components/providers/ClientProvider";
 import FirebaseAuthProvider from "@/components/providers/FirebaseAuthProvider";
 import SubscriptionProvider from "@/components/providers/SubscriptionProvider";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -31,6 +32,8 @@ export default function RootLayout({
                 <Header />
 
                 {children}
+
+                <Toaster />
               </ThemeProvider>
             </SubscriptionProvider>
           </FirebaseAuthProvider>

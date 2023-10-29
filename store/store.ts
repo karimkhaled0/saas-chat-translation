@@ -26,6 +26,26 @@ export const LanguageSupportedMap: Record<LanguageSupported, string> = {
   ar: "Arabic",
 };
 
+interface LanguageState {
+  language: LanguageSupported;
+  setLanguage: (language: LanguageSupported) => void;
+  getLanguages: (isPro: boolean) => LanguageSupported[];
+  getNotSupoortedLanguages: (isPro: boolean) => LanguageSupported[];
+}
+
+export const useLanguageStore = create<LanguageState>((set, get) => ({
+  language: "en",
+  setLanguage: (language: LanguageSupported) => set({ language }),
+  getLanguages: (isPro: boolean) => {
+    const languages = Object.keys(LanguageSupportedMap) as LanguageSupported[];
+    return isPro ? languages : languages.slice(0, 2);
+  },
+  getNotSupoortedLanguages: (isPro: boolean) => {
+    const languages = Object.keys(LanguageSupportedMap) as LanguageSupported[];
+    return isPro ? [] : languages.slice(2);
+  },
+}));
+
 interface SubscriptionState {
   subscription: Subscription | null | undefined;
   setSubscription: (subscription: Subscription | null) => void;

@@ -5,7 +5,7 @@ import Image from "next/image";
 
 type Props = {
   name?: string | null;
-  image: string | null;
+  image?: string | null;
   className?: string;
 };
 

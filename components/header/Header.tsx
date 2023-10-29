@@ -5,8 +5,9 @@ import UserButton from "./UserButton";
 import { authOptions } from "@/auth";
 import Link from "next/link";
 import { MessagesSquareIcon } from "lucide-react";
-import CreateChatButton from "./CreateChatButton";
+import CreateChatButton from "../chat/CreateChatButton";
 import UpgradeBanner from "./UpgradeBanner";
+import LanguageSelect from "./LanguageSelect";
 
 type Props = {};
 
@@ -23,6 +24,7 @@ const Header = async (props: Props) => {
 
         <div className="flex-1 flex items-center justify-end space-x-4">
           {/* Language selecter */}
+          <LanguageSelect />
 
           {session ? (
             <>
