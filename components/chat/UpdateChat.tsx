@@ -52,7 +52,7 @@ const UpdateChat = ({ chatId }: Props) => {
     session?.user.id === adminId && (
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button variant={"secondary"} className="bg-green-700">
+          <Button variant={"default"} className="bg-green-700 text-white">
             Update Chat
           </Button>
         </DialogTrigger>
