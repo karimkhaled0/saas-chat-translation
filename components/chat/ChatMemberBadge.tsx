@@ -4,8 +4,8 @@ import useAdminId from "@/hooks/useAdminId";
 import { ChatMembers, chatMembersRef } from "@/lib/converters/chatMembers";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import LoadingSpinner from "../header/LoadingSpinner";
-import { Badge } from "../ui/badge";
-import UserAvatar from "../header/UserAvatar";
+
+import ChatUserBadge from "./ChatUserBadge";
 
 type Props = {
   chatId: string;
@@ -28,22 +28,11 @@ const ChatMemberBadge = ({ chatId }: Props) => {
             items-center gap-2 p-2"
         >
           {members?.map((member) => (
-            <Badge
-              key={member.email}
-              variant={"secondary"}
-              className="h-14 p-5 pl-2 pr-5 flex space-x-2"
-            >
-              <div className="flex items-center space-x-2">
-                <UserAvatar name={member.email} image={member.image} />
-              </div>
-
-              <div>
-                <p>{member.email}</p>
-                {member.userId === adminId && (
-                  <p className="text-indigo-400 animate-pulse">Admin</p>
-                )}
-              </div>
-            </Badge>
+            <ChatUserBadge
+              key={member.userId}
+              member={member}
+              adminId={adminId}
+            />
           ))}
         </div>
       </div>

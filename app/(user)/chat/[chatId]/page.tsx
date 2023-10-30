@@ -3,6 +3,7 @@ import AdminControls from "@/components/chat/AdminControls";
 import ChatInput from "@/components/chat/ChatInput";
 import ChatMemberBadge from "@/components/chat/ChatMemberBadge";
 import ChatMessages from "@/components/chat/ChatMessages";
+import LeaveChatButton from "@/components/chat/LeaveChatButton";
 import { chatMembersRef } from "@/lib/converters/chatMembers";
 import { sortedMessageRef } from "@/lib/converters/message";
 import { getDocs } from "firebase/firestore";
@@ -31,6 +32,9 @@ const ChatPage = async ({ params: { chatId } }: Props) => {
 
   return (
     <>
+      <div className="flex justify-end m-5 mb-0">
+        <LeaveChatButton chatId={chatId} />
+      </div>
       {/* AdminControls */}
       <AdminControls chatId={chatId} />
       {/* ChatMemberBadge */}

@@ -36,6 +36,7 @@ import ShareLink from "./ShareLink";
 import { useSubscriptionStore } from "@/store/store";
 import { ToastAction } from "../ui/toast";
 import { useRouter } from "next/navigation";
+import { subscriptionRef } from "@/lib/converters/subscription";
 
 type Props = {
   chatId: string;
@@ -70,14 +71,36 @@ const InviteUser = ({ chatId }: Props) => {
       description: "Please wait while we send the invite to the user.",
     });
 
-    // check if user is about to exceed the free plan limit
+    // number of users in chat
     const noOfUsersInChat = (await getDocs(chatMembersRef(chatId))).docs.map(
       (doc) => doc.data()
     ).length;
 
+    // check if user is pro
     const isPro =
       subscription?.role === "pro" && subscription.status === "active";
 
+    // get user by email
+    const querySnapshot = await getDocs(getUserByEmailRef(values.email));
+
+    // check if user exists in db
+    if (querySnapshot.empty) {
+      toast({
+        title: "User not found!",
+        description:
+          "The user you are trying to add is not registered. Please ask them to register first.",
+        variant: "destructive",
+      });
+
+      return;
+    }
+
+    // check if user exists in chat
+    const userInChat = (await getDocs(chatMembersRef(chatId))).docs
+      .map((doc) => doc.data())
+      .some((user) => user.email === values.email);
+
+    // check if user exceeds 2 members in chat
     if (!isPro && noOfUsersInChat >= 2) {
       toast({
         title: "Free plan limit reached!",
@@ -97,42 +120,19 @@ const InviteUser = ({ chatId }: Props) => {
       return;
     }
 
-    const querySnapshot = await getDocs(getUserByEmailRef(values.email));
-
-    // check if invited user exceeds the free plan limit
-    const chatLimit = (
-      await getDocs(
-        chatMembersCollectionGroupRef(querySnapshot.docs[0].data().id)
-      )
-    ).docs.map((doc) => doc.data()).length;
-
-    if (chatLimit >= 3) {
+    // check if user is trying to add themselves
+    if (querySnapshot.docs[0].data().id === session?.user.id) {
       toast({
-        title: "Free plan limit reached!",
-        description:
-          "This user has reached the limit of 3 chats for the FREE plan. Please ask them to upgrade to pro for unlimted chatting.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // check if user exists in this chat
-    const userInChat = (await getDocs(chatMembersRef(chatId))).docs
-      .map((doc) => doc.data())
-      .some((user) => user.email === values.email);
-
-    if (querySnapshot.empty) {
-      toast({
-        title: "User not found!",
-        description:
-          "The user you are trying to add is not registered. Please ask them to register first.",
+        title: "You can't add yourself!",
+        description: "You can't add yourself to the chat.",
         variant: "destructive",
       });
 
       return;
     }
+
     // check if user is in chat
-    else if (userInChat) {
+    if (userInChat) {
       toast({
         title: "User already in chat!",
         description: "The user you are trying to add is already in the chat.",
@@ -140,29 +140,30 @@ const InviteUser = ({ chatId }: Props) => {
       });
 
       return;
-    } else {
-      const user = querySnapshot.docs[0].data();
-
-      await setDoc(addChatRef(chatId, user.id), {
-        userId: user.id!,
-        email: user.email!,
-        image: user.image || "",
-        timestamp: serverTimestamp(),
-        chatId: chatId,
-        isAdmin: false,
-      }).then(() => {
-        setOpen(false);
-
-        toast({
-          title: "Added to chat!",
-          description: "The user has been added to the chat.",
-          className: "bg-green-500 text-white",
-          duration: 3000,
-        });
-
-        setOpenInviteLink(true);
-      });
     }
+
+    // add user to chat
+    const user = querySnapshot.docs[0].data();
+
+    await setDoc(addChatRef(chatId, user.id), {
+      userId: user.id!,
+      email: user.email!,
+      image: user.image || "",
+      timestamp: serverTimestamp(),
+      chatId: chatId,
+      isAdmin: false,
+    }).then(() => {
+      setOpen(false);
+
+      toast({
+        title: "Added to chat!",
+        description: "The user has been added to the chat.",
+        className: "bg-green-500 text-white",
+        duration: 3000,
+      });
+
+      setOpenInviteLink(true);
+    });
 
     form.reset();
   };
