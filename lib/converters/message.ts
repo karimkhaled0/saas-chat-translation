@@ -9,6 +9,7 @@ import {
   limit,
   orderBy,
   query,
+  where,
 } from "firebase/firestore";
 
 export interface User {
@@ -57,8 +58,8 @@ const messageConverter: FirestoreDataConverter<Message> = {
 export const messageRef = (chatId: string) =>
   collection(db, "chats", chatId, "messages").withConverter(messageConverter);
 
-export const limitedMessageRef = (chatId: string) =>
-  query(messageRef(chatId), limit(25));
+export const limitedMessageRef = (chatId: string, id: string) =>
+  query(messageRef(chatId), where("user.id", "==", id), limit(25));
 
 export const sortedMessageRef = (chatId: string) =>
   query(messageRef(chatId), orderBy("timestamp", "asc"));

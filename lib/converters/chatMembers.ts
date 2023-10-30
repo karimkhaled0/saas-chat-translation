@@ -54,7 +54,9 @@ export const addChatRef = (chatId: string, userId: string) =>
   );
 
 export const chatMembersRef = (chatId: string) =>
-  doc(db, "chats", chatId, "members").withConverter(chatMembersConverter);
+  collection(db, "chats", chatId, "members").withConverter(
+    chatMembersConverter
+  );
 
 export const chatMemberAdminRef = (chatId: string) =>
   query(

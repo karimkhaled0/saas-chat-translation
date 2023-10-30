@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "next-auth/react";
-import { useForm } from "react-hook-form";
+import { set, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import {
@@ -18,6 +18,7 @@ import { useSubscriptionStore } from "@/store/store";
 import { useRouter } from "next/navigation";
 import { useToast } from "../ui/use-toast";
 import { ToastAction } from "../ui/toast";
+import { useState } from "react";
 
 type Props = {
   chatId: string;
@@ -32,6 +33,7 @@ const ChatInput = ({ chatId }: Props) => {
   const router = useRouter();
   const { toast } = useToast();
   const subscription = useSubscriptionStore((state) => state.subscription);
+  const [emojiOpen, setEmojiOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -43,15 +45,33 @@ const ChatInput = ({ chatId }: Props) => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const inputCopy = values.input;
     form.reset();
+
     if (!session?.user) return;
     if (inputCopy.length === 0) return;
 
-    const messages = (await getDocs(limitedMessageRef(chatId))).docs.map(
-      (doc) => doc.data()
-    ).length;
+    const messages = (
+      await getDocs(limitedMessageRef(chatId, session.user.id))
+    ).docs.map((doc) => doc.data()).length;
 
     const isPro =
       subscription?.role === "pro" && subscription.status === "active";
+
+    if (messages === 17) {
+      toast({
+        title: "You have 3 messages left!",
+        description:
+          "You have 3 messages left for the FREE plan. Please upgrade to pro for unlimted chatting.",
+        variant: "destructive",
+        action: (
+          <ToastAction
+            altText="Upgrade to Pro"
+            onClick={() => router.push("/register")}
+          >
+            Upgrade to Pro
+          </ToastAction>
+        ),
+      });
+    }
 
     if (!isPro && messages >= 20) {
       toast({
@@ -68,6 +88,7 @@ const ChatInput = ({ chatId }: Props) => {
           </ToastAction>
         ),
       });
+      return;
     }
 
     const userToStore: User = {
@@ -108,6 +129,7 @@ const ChatInput = ({ chatId }: Props) => {
               </FormItem>
             )}
           />
+
           <Button
             type="submit"
             className="bg-violet-600 text-white hover:text-black"

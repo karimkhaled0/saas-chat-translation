@@ -9,8 +9,12 @@ import { useSubscriptionStore } from "@/store/store";
 import { useToast } from "../ui/use-toast";
 import LoadingSpinner from "../header/LoadingSpinner";
 import { v4 as uuidv4 } from "uuid";
-import { serverTimestamp, setDoc } from "firebase/firestore";
-import { addChatRef } from "@/lib/converters/chatMembers";
+import { getDocs, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  addChatRef,
+  chatMembersCollectionGroupRef,
+} from "@/lib/converters/chatMembers";
+import { ToastAction } from "../ui/toast";
 
 type Props = {
   isLarge?: boolean;
@@ -33,9 +37,31 @@ const CreateChatButton = ({ isLarge }: Props) => {
       duration: 3000,
     });
 
-    // TODO: check if user is pro and limit them creating chats
+    // check if user is about to exceed the free plan limit of 3 chats
+    const chatLimit = (
+      await getDocs(chatMembersCollectionGroupRef(session.user.id))
+    ).docs.map((doc) => doc.data()).length;
 
-    // --
+    const isPro =
+      subscription?.role === "pro" && subscription.status === "active";
+
+    if (!isPro && chatLimit >= 3) {
+      toast({
+        title: "Free plan limit reached!",
+        description:
+          "You have reached the limit of 3 chats for the FREE plan. Please upgrade to pro for unlimted chatting.",
+        variant: "destructive",
+        action: (
+          <ToastAction
+            altText="Upgrade to Pro"
+            onClick={() => router.push("/register")}
+          >
+            Upgrade to Pro
+          </ToastAction>
+        ),
+      });
+      return;
+    }
 
     const chatId = uuidv4();
 
