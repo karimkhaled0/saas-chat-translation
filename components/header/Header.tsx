@@ -4,16 +4,17 @@ import Logo from "./Logo";
 import UserButton from "./UserButton";
 import { authOptions } from "@/auth";
 import Link from "next/link";
-import { MessagesSquareIcon } from "lucide-react";
+import { FilesIcon, MessagesSquareIcon } from "lucide-react";
 import CreateChatButton from "../chat/CreateChatButton";
 import UpgradeBanner from "./UpgradeBanner";
 import LanguageSelect from "./LanguageSelect";
+import FileUploadButton from "./FileUploadButton";
 
 type Props = {};
 
 const Header = async (props: Props) => {
   const session = await getServerSession(authOptions);
-  console.log(session);
+
   return (
     <header className="sticky top-0 z-50 bg-white dark:bg-gray-900">
       <nav
@@ -23,20 +24,16 @@ const Header = async (props: Props) => {
         <Logo />
 
         <div className="flex-1 flex items-center justify-end space-x-4">
-          {/* Language selecter */}
-          <LanguageSelect />
-
-          {session ? (
+          {session && (
             <>
+              <Link href={"/documents"} prefetch={false}>
+                <FilesIcon />
+              </Link>
               <Link href={"/chat"} prefetch={false}>
                 <MessagesSquareIcon className="text-black dark:text-white" />
               </Link>
-              <CreateChatButton />
             </>
-          ) : (
-            <Link href={"/pricing"}>Pricing</Link>
           )}
-
           {/* DarkModeToggle */}
           <DarkModeToggle />
 
@@ -46,6 +43,12 @@ const Header = async (props: Props) => {
       </nav>
       {/* upgrade banner */}
       <UpgradeBanner />
+
+      <div className="flex items-center justify-center space-x-5">
+        {/* Language selecter */}
+        <LanguageSelect page="chat" />
+        <CreateChatButton />
+      </div>
     </header>
   );
 };

@@ -16,9 +16,11 @@ import {
 import LoadingSpinner from "./LoadingSpinner";
 import Link from "next/link";
 
-type Props = {};
+type Props = {
+  page: string;
+};
 
-const LanguageSelect = (props: Props) => {
+const LanguageSelect = ({ page }: Props) => {
   const [language, setLanguage, getLanguages, getNotSupoortedLanguages] =
     useLanguageStore((state) => [
       state.language,
@@ -32,11 +34,11 @@ const LanguageSelect = (props: Props) => {
     subscription?.role === "pro" && subscription?.status === "active";
 
   const pathName = usePathname();
-  const isChatPage = pathName.includes("/chat");
+  const isChatPage = pathName.includes(page);
 
   return (
     isChatPage && (
-      <div>
+      <div className="my-5">
         <Select
           onValueChange={(value: LanguageSupported) => setLanguage(value)}
         >

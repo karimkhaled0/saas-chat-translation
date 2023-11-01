@@ -2,7 +2,7 @@
 
 import { MessageSquarePlusIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useSubscriptionStore } from "@/store/store";
@@ -96,6 +96,9 @@ const CreateChatButton = ({ isLarge }: Props) => {
       });
   };
 
+  const pathName = usePathname();
+  const isChatPage = pathName.includes("/chat");
+
   if (isLarge) {
     return (
       <Button onClick={createNewChat} variant={"default"}>
@@ -105,9 +108,11 @@ const CreateChatButton = ({ isLarge }: Props) => {
   }
 
   return (
-    <Button onClick={createNewChat} variant={"secondary"}>
-      <MessageSquarePlusIcon />
-    </Button>
+    isChatPage && (
+      <Button onClick={createNewChat} variant={"secondary"}>
+        <MessageSquarePlusIcon />
+      </Button>
+    )
   );
 };
 
